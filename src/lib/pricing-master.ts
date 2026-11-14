@@ -114,7 +114,7 @@ export const PRICING_MASTER: PriceItem[] = [
   { contentId: "SCS-38", group: "CUSTOMISED", name: "Microwave Interior Deep Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Microwave Cleaning", price: 299, unit: "per microwave", minQty: 1 },
   { contentId: "SCS-39", group: "CUSTOMISED", name: "Removing & Placing Back of Kitchen Items", category: "INDIVIDUAL_CLEANING", variant: "Kitchen Items Removal", price: 599, unit: "per kitchen", minQty: 1, scope: "Our team removes kitchen items and places everything back neatly" },
   // Checkout add-ons (owner 2026-11-12): Chimney Deep Cleaning ₹499 · Pest Control Shot ₹899 · Balcony ₹499 (fridge, microwave and kitchen-items items are above).
-  { contentId: "SCS-35", group: "CUSTOMISED", name: "Chimney Deep Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Chimney Cleaning", price: 499, unit: "per chimney", minQty: 1, scope: "Filters, hood and body degreased" },
+  { contentId: "SCS-35", group: "CUSTOMISED", name: "Chimney Deep Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Chimney Cleaning", price: 599, unit: "per chimney", minQty: 1, scope: "Filters, hood and body degreased" },
   { contentId: "SCS-36", group: "CUSTOMISED", name: "Pest Control Shot (add-on)", category: "PEST_CONTROL", variant: "General Pest Shot", price: 899, unit: "per home", minQty: 1, addOnOnly: true, rule: "Add-on only — general cockroach & ant spray with a cleaning booking" },
   { contentId: "SCS-13", group: "CUSTOMISED", name: "Carpet Cleaning", category: "INDIVIDUAL_CLEANING", variant: "Carpet Cleaning", price: null, unit: "per carpet", minQty: 1, priceNote: ON_CONFIRMATION },
 

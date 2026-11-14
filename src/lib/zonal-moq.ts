@@ -17,7 +17,7 @@ export const NEARBY_RADIUS_KM = 7;
 export const NO_MOQ_LOCALITIES = ["magarpatta", "hadapsar", "kharadi", "undri", "nibm", "wanowrie", "mohammadwadi", "phursungi", "handewadi", "viman-nagar", "camp", "kalyani-nagar", "koregaon-park", "kondhwa", "dhankawadi", "balaji-nagar"] as const;
 
 /** Zone B — explicit slugs; any matrix locality in the west-pcmc zone is Zone B too (WEST_PCMC_SLUGS, passed by the caller). */
-export const MOQ_LOCALITIES = ["hinjewadi", "baner", "balewadi", "wakad", "pashan", "sus", "sutarwadi", "aundh", "bavdhan", "kothrud", "warje", "sinhagad-road", "narhe", "pimpri", "chinchwad", "nigdi", "bhosari", "pimple-saudagar", "pimple-nilakh"] as const;
+export const MOQ_LOCALITIES = ["hinjewadi", "baner", "balewadi", "wakad", "pashan", "sus", "sutarwadi", "aundh", "bavdhan", "kothrud", "warje", "sinhagad-road", "narhe", "pimpri", "chinchwad", "nigdi", "deccan", "deccan-gymkhana", "bhosari", "pimple-saudagar", "pimple-nilakh"] as const;
 
 /** Areas customers ask for that have no SEO page of their own, offered in the booking area picker. */
 export const EXTRA_AREAS = [
@@ -47,10 +47,10 @@ export function distanceKm(a: { lat: number; lng: number }, b: { lat: number; ln
 /**
  * Zone B PIN codes (owner final sprint 2026-11-02): Hinjewadi/Wakad 411057, Baner/Balewadi 411045, Aundh 411007, Kothrud 411038,
  * Warje 411058, Narhe/Sinhagad Road 411041, Chinchwad 411019, Thergaon/Chinchwad 411033 — plus the remaining West Pune & PCMC
- * localities already in Zone B (Pimpri 411018, Pimple Saudagar/Nilakh 411027, Bhosari 411039, Nigdi 411044, Bavdhan/Sus/Pashan
+ * localities already in Zone B (Pimpri 411018, Pimple Saudagar/Nilakh 411027, Bhosari 411039, Nigdi 411044, Deccan Gymkhana 411004, Bavdhan/Sus/Pashan
  * 411021, Pashan 411008). Used for the check only — never printed on the website.
  */
-export const ZONE_B_PINCODES = ["411057", "411045", "411007", "411038", "411058", "411041", "411019", "411033", "411018", "411027", "411039", "411044", "411021", "411008"] as const;
+export const ZONE_B_PINCODES = ["411057", "411045", "411007", "411038", "411058", "411041", "411019", "411033", "411018", "411027", "411039", "411044", "411021", "411008", "411004"] as const;
 
 /** Exact customer-facing alert (owner wording). */
 export const ZONE_B_MOV_MESSAGE = "Zone B (West Pune/PCMC) requires a Minimum Order Value of ₹3,999.";

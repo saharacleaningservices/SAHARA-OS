@@ -9,6 +9,7 @@ import { notifyCrewAssigned } from "@/server/job-team";
 import { addTimelineEntry } from "@/server/timeline";
 import { enqueueTeamDispatch } from "@/server/job-queue-handlers";
 import { sendBookingConfirmation } from "@/server/booking-messages";
+import { generateStartOtp } from "@/lib/field-ops";
 
 // Server-only core of "Confirm Booking" (enquiry -> scheduled Job): shared by the CRM's Confirm Booking action
 // (actions/leads.ts confirmBooking, which does the session / role / scope checks first) and the website's
@@ -74,6 +75,9 @@ export async function confirmLeadIntoJob(lead: Lead, data: ConfirmBookingFormVal
       teamNumber,
       supervisorId: data.supervisorId || null,
       jobValue,
+      // ONE 4-digit Start OTP, issued when the office confirms the booking and sent to the customer in the confirmation message.
+      startOtp: generateStartOtp(),
+      startOtpSentAt: new Date(),
       notes: `Auto-created from enquiry ${lead.leadNumber}`,
     },
   })

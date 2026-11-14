@@ -47,6 +47,7 @@ export type CompanySettingsMinAggregateOutputType = {
   website: string | null
   logoUrl: string | null
   googleReviewUrl: string | null
+  gpsTrackingEnabled: boolean | null
   googleRating: string | null
   googleReviewCount: string | null
   linkedinUrl: string | null
@@ -73,6 +74,7 @@ export type CompanySettingsMaxAggregateOutputType = {
   website: string | null
   logoUrl: string | null
   googleReviewUrl: string | null
+  gpsTrackingEnabled: boolean | null
   googleRating: string | null
   googleReviewCount: string | null
   linkedinUrl: string | null
@@ -99,6 +101,7 @@ export type CompanySettingsCountAggregateOutputType = {
   website: number
   logoUrl: number
   googleReviewUrl: number
+  gpsTrackingEnabled: number
   googleRating: number
   googleReviewCount: number
   linkedinUrl: number
@@ -139,6 +142,7 @@ export type CompanySettingsMinAggregateInputType = {
   website?: true
   logoUrl?: true
   googleReviewUrl?: true
+  gpsTrackingEnabled?: true
   googleRating?: true
   googleReviewCount?: true
   linkedinUrl?: true
@@ -165,6 +169,7 @@ export type CompanySettingsMaxAggregateInputType = {
   website?: true
   logoUrl?: true
   googleReviewUrl?: true
+  gpsTrackingEnabled?: true
   googleRating?: true
   googleReviewCount?: true
   linkedinUrl?: true
@@ -191,6 +196,7 @@ export type CompanySettingsCountAggregateInputType = {
   website?: true
   logoUrl?: true
   googleReviewUrl?: true
+  gpsTrackingEnabled?: true
   googleRating?: true
   googleReviewCount?: true
   linkedinUrl?: true
@@ -304,6 +310,7 @@ export type CompanySettingsGroupByOutputType = {
   website: string | null
   logoUrl: string | null
   googleReviewUrl: string | null
+  gpsTrackingEnabled: boolean
   googleRating: string | null
   googleReviewCount: string | null
   linkedinUrl: string | null
@@ -353,6 +360,7 @@ export type CompanySettingsWhereInput = {
   website?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   logoUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   googleReviewUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  gpsTrackingEnabled?: Prisma.BoolFilter<"CompanySettings"> | boolean
   googleRating?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   googleReviewCount?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   linkedinUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
@@ -379,6 +387,7 @@ export type CompanySettingsOrderByWithRelationInput = {
   website?: Prisma.SortOrderInput | Prisma.SortOrder
   logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   googleReviewUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  gpsTrackingEnabled?: Prisma.SortOrder
   googleRating?: Prisma.SortOrderInput | Prisma.SortOrder
   googleReviewCount?: Prisma.SortOrderInput | Prisma.SortOrder
   linkedinUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -408,6 +417,7 @@ export type CompanySettingsWhereUniqueInput = Prisma.AtLeast<{
   website?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   logoUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   googleReviewUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
+  gpsTrackingEnabled?: Prisma.BoolFilter<"CompanySettings"> | boolean
   googleRating?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   googleReviewCount?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
   linkedinUrl?: Prisma.StringNullableFilter<"CompanySettings"> | string | null
@@ -434,6 +444,7 @@ export type CompanySettingsOrderByWithAggregationInput = {
   website?: Prisma.SortOrderInput | Prisma.SortOrder
   logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   googleReviewUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  gpsTrackingEnabled?: Prisma.SortOrder
   googleRating?: Prisma.SortOrderInput | Prisma.SortOrder
   googleReviewCount?: Prisma.SortOrderInput | Prisma.SortOrder
   linkedinUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -468,6 +479,7 @@ export type CompanySettingsScalarWhereWithAggregatesInput = {
   website?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
   logoUrl?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
   googleReviewUrl?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
+  gpsTrackingEnabled?: Prisma.BoolWithAggregatesFilter<"CompanySettings"> | boolean
   googleRating?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
   googleReviewCount?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
   linkedinUrl?: Prisma.StringNullableWithAggregatesFilter<"CompanySettings"> | string | null
@@ -494,6 +506,7 @@ export type CompanySettingsCreateInput = {
   website?: string | null
   logoUrl?: string | null
   googleReviewUrl?: string | null
+  gpsTrackingEnabled?: boolean
   googleRating?: string | null
   googleReviewCount?: string | null
   linkedinUrl?: string | null
@@ -520,6 +533,7 @@ export type CompanySettingsUncheckedCreateInput = {
   website?: string | null
   logoUrl?: string | null
   googleReviewUrl?: string | null
+  gpsTrackingEnabled?: boolean
   googleRating?: string | null
   googleReviewCount?: string | null
   linkedinUrl?: string | null
@@ -546,6 +560,7 @@ export type CompanySettingsUpdateInput = {
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpsTrackingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   googleRating?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleReviewCount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   linkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -572,6 +587,7 @@ export type CompanySettingsUncheckedUpdateInput = {
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpsTrackingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   googleRating?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleReviewCount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   linkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -598,6 +614,7 @@ export type CompanySettingsCreateManyInput = {
   website?: string | null
   logoUrl?: string | null
   googleReviewUrl?: string | null
+  gpsTrackingEnabled?: boolean
   googleRating?: string | null
   googleReviewCount?: string | null
   linkedinUrl?: string | null
@@ -624,6 +641,7 @@ export type CompanySettingsUpdateManyMutationInput = {
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpsTrackingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   googleRating?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleReviewCount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   linkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -650,6 +668,7 @@ export type CompanySettingsUncheckedUpdateManyInput = {
   website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gpsTrackingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   googleRating?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleReviewCount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   linkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -676,6 +695,7 @@ export type CompanySettingsCountOrderByAggregateInput = {
   website?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
   googleReviewUrl?: Prisma.SortOrder
+  gpsTrackingEnabled?: Prisma.SortOrder
   googleRating?: Prisma.SortOrder
   googleReviewCount?: Prisma.SortOrder
   linkedinUrl?: Prisma.SortOrder
@@ -708,6 +728,7 @@ export type CompanySettingsMaxOrderByAggregateInput = {
   website?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
   googleReviewUrl?: Prisma.SortOrder
+  gpsTrackingEnabled?: Prisma.SortOrder
   googleRating?: Prisma.SortOrder
   googleReviewCount?: Prisma.SortOrder
   linkedinUrl?: Prisma.SortOrder
@@ -734,6 +755,7 @@ export type CompanySettingsMinOrderByAggregateInput = {
   website?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
   googleReviewUrl?: Prisma.SortOrder
+  gpsTrackingEnabled?: Prisma.SortOrder
   googleRating?: Prisma.SortOrder
   googleReviewCount?: Prisma.SortOrder
   linkedinUrl?: Prisma.SortOrder
@@ -768,6 +790,7 @@ export type CompanySettingsSelect<ExtArgs extends runtime.Types.Extensions.Inter
   website?: boolean
   logoUrl?: boolean
   googleReviewUrl?: boolean
+  gpsTrackingEnabled?: boolean
   googleRating?: boolean
   googleReviewCount?: boolean
   linkedinUrl?: boolean
@@ -794,6 +817,7 @@ export type CompanySettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   website?: boolean
   logoUrl?: boolean
   googleReviewUrl?: boolean
+  gpsTrackingEnabled?: boolean
   googleRating?: boolean
   googleReviewCount?: boolean
   linkedinUrl?: boolean
@@ -820,6 +844,7 @@ export type CompanySettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   website?: boolean
   logoUrl?: boolean
   googleReviewUrl?: boolean
+  gpsTrackingEnabled?: boolean
   googleRating?: boolean
   googleReviewCount?: boolean
   linkedinUrl?: boolean
@@ -846,6 +871,7 @@ export type CompanySettingsSelectScalar = {
   website?: boolean
   logoUrl?: boolean
   googleReviewUrl?: boolean
+  gpsTrackingEnabled?: boolean
   googleRating?: boolean
   googleReviewCount?: boolean
   linkedinUrl?: boolean
@@ -863,7 +889,7 @@ export type CompanySettingsSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CompanySettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phone" | "email" | "address" | "website" | "logoUrl" | "googleReviewUrl" | "googleRating" | "googleReviewCount" | "linkedinUrl" | "signatureLogoWidth" | "signatureLogoHeight" | "happyCustomers" | "featuredReviews" | "bankBalance" | "upiId" | "upiQrUrl" | "bankName" | "bankAccountName" | "bankAccountNumber" | "bankIfsc" | "updatedAt", ExtArgs["result"]["companySettings"]>
+export type CompanySettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "phone" | "email" | "address" | "website" | "logoUrl" | "googleReviewUrl" | "gpsTrackingEnabled" | "googleRating" | "googleReviewCount" | "linkedinUrl" | "signatureLogoWidth" | "signatureLogoHeight" | "happyCustomers" | "featuredReviews" | "bankBalance" | "upiId" | "upiQrUrl" | "bankName" | "bankAccountName" | "bankAccountNumber" | "bankIfsc" | "updatedAt", ExtArgs["result"]["companySettings"]>
 
 export type $CompanySettingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "CompanySettings"
@@ -877,6 +903,7 @@ export type $CompanySettingsPayload<ExtArgs extends runtime.Types.Extensions.Int
     website: string | null
     logoUrl: string | null
     googleReviewUrl: string | null
+    gpsTrackingEnabled: boolean
     googleRating: string | null
     googleReviewCount: string | null
     linkedinUrl: string | null
@@ -1323,6 +1350,7 @@ export interface CompanySettingsFieldRefs {
   readonly website: Prisma.FieldRef<"CompanySettings", 'String'>
   readonly logoUrl: Prisma.FieldRef<"CompanySettings", 'String'>
   readonly googleReviewUrl: Prisma.FieldRef<"CompanySettings", 'String'>
+  readonly gpsTrackingEnabled: Prisma.FieldRef<"CompanySettings", 'Boolean'>
   readonly googleRating: Prisma.FieldRef<"CompanySettings", 'String'>
   readonly googleReviewCount: Prisma.FieldRef<"CompanySettings", 'String'>
   readonly linkedinUrl: Prisma.FieldRef<"CompanySettings", 'String'>

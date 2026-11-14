@@ -22,7 +22,7 @@ import { cleanFix, locationNote, type GeoFix } from "@/lib/geo";
 import { freezeJobTeam, notifyCrewAssigned, notifyCrewChanged, notifyCrewRemoved } from "@/server/job-team";
 import { headers } from "next/headers";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
-import { assessCheckIn, canOfficeClose, checkCompletion, generateStartOtp, gpsSubjectOf, MAX_OTP_ATTEMPTS, otpMatches, startOtpMessage, startOtpTemplatePayload, validateFix, COLLECT_MODE_LABELS, type CollectMode } from "@/lib/field-ops";
+import { assessCheckIn, canOfficeClose, checkCompletion, generateStartOtp, paymentRecordLabel, gpsSubjectOf, MAX_OTP_ATTEMPTS, otpMatches, startOtpMessage, startOtpTemplatePayload, validateFix, COLLECT_MODE_LABELS, type CollectMode } from "@/lib/field-ops";
 import { sendWhatsApp, sendWhatsAppTemplate, shouldFallBackToText } from "@/lib/whatsapp";
 
 /**
@@ -445,13 +445,17 @@ export async function updateJobStatus(jobId: string, status: JobStatus, location
   return updateJobStatusInternal(jobId, status, session?.sub, status === "STARTED" ? cleanFix(location) ?? "none" : undefined);
 }
 
+const PAYMENT_REQUIRED = "Payment required: use Complete Job and record how the customer paid (UPI / Cash) before closing this job.";
+
 async function updateJobStatusInternal(jobId: string, status: JobStatus, actorId?: string, fix?: GeoFix | "none") {
   const session = { sub: actorId };
   const now = new Date();
   // Same status again (double tap / two people) → no duplicate log, message or alert.
-  const current = await db.job.findUnique({ where: { id: jobId }, select: { status: true } });
+  const current = await db.job.findUnique({ where: { id: jobId }, select: { status: true, collectedMode: true } });
   if (!current) return { error: "Job not found", success: false as const };
   if (current.status === status) return { success: true as const, unchanged: true as const };
+  // Payment gate (owner 2026-11-14): no job closes without a payment record (UPI / Cash, or an Admin credit override).
+  if (status === "COMPLETED" && !current.collectedMode) return { error: PAYMENT_REQUIRED, success: false as const };
 
   const job = await db.job.update({
     where: { id: jobId },
@@ -506,10 +510,11 @@ export async function customerConfirmWorkCompleted(token: string): Promise<{ suc
   } catch {
     /* outside an HTTP request (tests): no throttling */
   }
-  const job = await db.job.findFirst({ where: { publicToken: token, deletedAt: null, isDemo: false }, select: { id: true, status: true } });
+  const job = await db.job.findFirst({ where: { publicToken: token, deletedAt: null, isDemo: false }, select: { id: true, status: true, collectedMode: true } });
   if (!job) return { success: false, error: "Booking not found" };
   if (job.status === "COMPLETED") return { success: true };
   if (job.status !== "STARTED") return { success: false, error: "Our team has not started the service yet — you can confirm completion once it has." };
+  if (!job.collectedMode) return { success: false, error: "Our team will close this booking once your payment is recorded." };
   await db.activityLog.create({ data: { jobId: job.id, action: "Customer confirmed work completed (booking page)" } }).catch(() => {});
   const r = await updateJobStatusInternal(job.id, "COMPLETED", undefined);
   revalidatePath(`/booking/${token}`);
@@ -586,7 +591,7 @@ export async function addJobVideo(jobId: string, url: string, caption?: string) 
   return { success: true as const };
 }
 
-export async function completeJobWithCertificate(jobId: string, location?: unknown) {
+export async function completeJobWithCertificate(jobId: string, location?: unknown, payment?: { amount: unknown; mode: unknown; note?: unknown }) {
   const scopeError = await assertJobEditable(jobId);
   if (scopeError) return scopeError;
   const job = await db.job.findUnique({ where: { id: jobId }, include: { supervisor: true, certificate: true } });
@@ -594,6 +599,24 @@ export async function completeJobWithCertificate(jobId: string, location?: unkno
 
   const session = await getSession();
   const now = new Date();
+  if (job.status !== "COMPLETED" && job.status !== "CANCELLED" && payment) {
+    // Office "Complete Job": the payment is recorded first (UPI / Cash / Bank, or an Admin-only credit override), then the job closes.
+    if (!session || !canOfficeClose(session.role)) return { error: "Not authorized", success: false as const };
+    const gate = checkCompletion({ amount: payment.amount, mode: payment.mode, note: payment.note, otpVerified: true, needsOtp: false, actor: session.role === "ADMIN" ? "ADMIN" : "OFFICE", upiConfirmed: true });
+    if (!gate.ok) return { error: gate.error, success: false as const };
+    await recordJobCollection({ id: job.id, jobValue: job.jobValue, customerName: job.customerName, customerMobile: job.customerMobile, leadId: job.leadId }, gate, { id: session.sub, name: session.name }, "at the office");
+    await db.job.update({
+      where: { id: jobId },
+      data: {
+        collectedAmount: gate.amount, collectedMode: gate.mode, pendingReason: gate.mode === "CREDIT_OVERRIDE" ? gate.note : null,
+        ...(gate.mode === "CASH" && { cashCollectedByStaffId: null, cashCollectedByName: session.name, cashCollectedAt: now, cashSettledAt: now, cashSettledByName: session.name }),
+      },
+    });
+    await db.activityLog.create({ data: { jobId, actorId: session.sub, action: `Payment recorded by ${session.name} (${session.role}) — ${gate.mode === "CREDIT_OVERRIDE" ? "" : `₹${gate.amount.toLocaleString("en-IN")} · `}${paymentRecordLabel(gate.mode, session.name)}${gate.note ? ` · ${gate.note}` : ""}` } }).catch(() => {});
+    await afterCollection({ id: job.id, jobNumber: job.jobNumber, customerName: job.customerName }, gate, session.name);
+    job.collectedMode = gate.mode;
+  }
+  if (job.status !== "COMPLETED" && !job.collectedMode) return { error: PAYMENT_REQUIRED, success: false as const };
   // Already completed (double tap / second user) → no second review, log or invoice.
   if (job.status === "COMPLETED") return { success: true as const, certificateId: job.certificate?.id, unchanged: true as const };
   if (job.status === "CANCELLED") return { error: "This job is cancelled — reactivate it first.", success: false as const };
@@ -780,7 +803,7 @@ export async function staffReachedLocation(jobId: string, rawFix: unknown) {
     where: { id: jobId },
     data: {
       reachedAt: now, reachedLat: fix.lat, reachedLng: fix.lng, reachedAccuracyM: fix.acc, reachedDistanceM: distanceM, gpsFlag: flag,
-      startOtp: otp, startOtpSentAt: now, startOtpAttempts: 0,
+      startOtp: otp, ...(job.startOtp ? {} : { startOtpSentAt: now, startOtpAttempts: 0 }),
       ...(job.status !== "ON_THE_WAY" && { status: "ON_THE_WAY" as const, onTheWayAt: now }),
     },
   });
@@ -800,7 +823,8 @@ export async function staffReachedLocation(jobId: string, rawFix: unknown) {
     }).catch(() => {});
   }
 
-  void sendStartOtp(job, otp).catch((e) => console.error("[field-ops] start OTP WhatsApp failed:", e));
+  // The customer already got this OTP in the booking confirmation; only a job with no OTP yet (entered by hand) sends it now.
+  if (!job.startOtp) void sendStartOtp(job, otp).catch((e) => console.error("[field-ops] start OTP WhatsApp failed:", e));
 
   revalidatePath("/field-ops");
   revalidatePath(`/jobs/${jobId}`);
@@ -845,23 +869,26 @@ type CollectJob = { id: string; jobValue: number; customerName: string; customer
 async function recordJobCollection(job: CollectJob, gate: { amount: number; mode: CollectMode; note: string | null }, actor: { id: string; name: string }, where: string) {
   const rows = await db.payment.findMany({ where: { jobId: job.id, deletedAt: null }, orderBy: { createdAt: "asc" } });
   const open = rows.find((p) => p.status !== "PAID" && p.paidAmount < p.amount - 0.01);
-  if (gate.mode !== "PENDING_APPROVAL") {
+  if (gate.mode !== "PENDING_APPROVAL" && gate.mode !== "CREDIT_OVERRIDE") {
+    const label = paymentRecordLabel(gate.mode, actor.name);
     if (open) {
       const paid = open.paidAmount + gate.amount;
       const fullyPaid = paid >= open.amount - 0.01;
-      await db.payment.update({ where: { id: open.id }, data: { paidAmount: paid, status: fullyPaid ? "PAID" : open.status, paidDate: fullyPaid ? new Date() : open.paidDate ?? new Date(), mode: gate.mode, recordedById: actor.id, notes: [open.notes, `Collected ${where} by ${actor.name}`].filter(Boolean).join(" · ") } });
+      await db.payment.update({ where: { id: open.id }, data: { paidAmount: paid, status: fullyPaid ? "PAID" : open.status, paidDate: fullyPaid ? new Date() : open.paidDate ?? new Date(), mode: gate.mode, recordedById: actor.id, notes: [open.notes, `${label} · ${where}`].filter(Boolean).join(" · ") } });
     } else if (rows.length === 0) {
       const fullyPaid = gate.amount >= job.jobValue - 0.01;
-      await db.payment.create({ data: { invoiceNumber: await generateInvoiceNumber(), jobId: job.id, leadId: job.leadId, clientName: job.customerName, clientMobile: job.customerMobile, amount: Math.max(job.jobValue, gate.amount), paidAmount: gate.amount, dueDate: new Date(), paidDate: new Date(), status: fullyPaid ? "PAID" : "PENDING", mode: gate.mode, recordedById: actor.id, notes: `Collected ${where} by ${actor.name}` } });
+      await db.payment.create({ data: { invoiceNumber: await generateInvoiceNumber(), jobId: job.id, leadId: job.leadId, clientName: job.customerName, clientMobile: job.customerMobile, amount: Math.max(job.jobValue, gate.amount), paidAmount: gate.amount, dueDate: new Date(), paidDate: new Date(), status: fullyPaid ? "PAID" : "PENDING", mode: gate.mode, recordedById: actor.id, notes: `${label} · ${where}` } });
     }
     // else: everything was already settled before the visit — nothing to record against
   } else if (rows.length === 0) {
-    await db.payment.create({ data: { invoiceNumber: await generateInvoiceNumber(), jobId: job.id, leadId: job.leadId, clientName: job.customerName, clientMobile: job.customerMobile, amount: job.jobValue, paidAmount: 0, dueDate: new Date(), status: "PENDING", recordedById: actor.id, notes: `Pending approval — reported ${where} by ${actor.name}: ${gate.note}` } });
+    await db.payment.create({ data: { invoiceNumber: await generateInvoiceNumber(), jobId: job.id, leadId: job.leadId, clientName: job.customerName, clientMobile: job.customerMobile, amount: job.jobValue, paidAmount: 0, dueDate: new Date(), status: "PENDING", recordedById: actor.id, notes: gate.mode === "CREDIT_OVERRIDE" ? `${paymentRecordLabel(gate.mode, actor.name)} — ${gate.note}` : `Pending approval — reported ${where} by ${actor.name}: ${gate.note}` } });
   }
 }
 
 async function afterCollection(job: { id: string; jobNumber: string; customerName: string }, gate: { amount: number; mode: CollectMode; note: string | null }, byName: string) {
-  if (gate.mode === "PENDING_APPROVAL") {
+  if (gate.mode === "CREDIT_OVERRIDE") {
+    await notify({ kind: "OPS_ESCALATION", title: `Credit override — ${job.jobNumber}`, body: `${byName}: ${gate.note}`, href: "/field-ops", critical: true, whatsappToAdmin: true }).catch(() => {});
+  } else if (gate.mode === "PENDING_APPROVAL") {
     await notify({ kind: "OPS_ESCALATION", title: `Payment PENDING APPROVAL — ${job.jobNumber}`, body: `${byName}: ${gate.note}`, href: "/field-ops", critical: true, whatsappToAdmin: true }).catch(() => {});
   } else {
     await notify({ kind: "PAYMENT_RECEIVED", title: `Collected — ₹${gate.amount.toLocaleString("en-IN")}`, body: `${job.customerName} · ${COLLECT_MODE_LABELS[gate.mode]} · ${job.jobNumber} · by ${byName}`, href: "/field-ops", whatsappToAdmin: true }).catch(() => {});
@@ -878,7 +905,7 @@ async function afterCollection(job: { id: string; jobNumber: string; customerNam
  * invoice and Google-review automation run exactly as for office completions (the review is queued by the completion path and sent only when
  * nothing is left to collect).
  */
-export async function staffCompleteJob(jobId: string, input: { amount: unknown; mode: unknown; note?: unknown }) {
+export async function staffCompleteJob(jobId: string, input: { amount: unknown; mode: unknown; note?: unknown; upiConfirmed?: unknown }) {
   const session = await getSession();
   if (!session || session.role !== "STAFF") return { error: "Not authorized", success: false as const };
   const scopeError = await assertJobEditable(jobId, { staffAllowed: true });
@@ -888,7 +915,7 @@ export async function staffCompleteJob(jobId: string, input: { amount: unknown; 
   if (job.status === "COMPLETED") return { success: true as const, unchanged: true as const };
   if (job.status !== "STARTED") return { error: "Start the job with the customer's code before completing it.", success: false as const };
 
-  const gate = checkCompletion({ amount: input.amount, mode: input.mode, note: input.note, otpVerified: Boolean(job.startOtpVerifiedAt), needsOtp: Boolean(job.startOtp) });
+  const gate = checkCompletion({ amount: input.amount, mode: input.mode, note: input.note, otpVerified: Boolean(job.startOtpVerifiedAt), needsOtp: Boolean(job.startOtp), actor: "STAFF", upiConfirmed: input.upiConfirmed === true });
   if (!gate.ok) return { error: gate.error, success: false as const };
 
   const ownStaffId = await getOwnStaffId(session.sub);
@@ -901,7 +928,7 @@ export async function staffCompleteJob(jobId: string, input: { amount: unknown; 
       ...(gate.mode === "CASH" && { cashCollectedByStaffId: ownStaffId, cashCollectedByName: session.name, cashCollectedAt: now }),
     },
   });
-  await db.activityLog.create({ data: { jobId, actorId: session.sub, action: `Completion gate passed — ₹${gate.amount.toLocaleString("en-IN")} · ${COLLECT_MODE_LABELS[gate.mode]}${gate.mode === "CASH" ? ` · cash held by ${session.name}` : ""}${gate.note ? ` · ${gate.note}` : ""}` } }).catch(() => {});
+  await db.activityLog.create({ data: { jobId, actorId: session.sub, action: `Completion gate passed — ₹${gate.amount.toLocaleString("en-IN")} · ${paymentRecordLabel(gate.mode, session.name)}${gate.note ? ` · ${gate.note}` : ""}` } }).catch(() => {});
 
   const r = await updateJobStatusInternal(jobId, "COMPLETED", session.sub);
   if ("error" in r && r.error) return { error: r.error, success: false as const };
@@ -923,7 +950,7 @@ export async function officeCloseJob(jobId: string, input: { amount: unknown; mo
   const pendingFix = job.status === "COMPLETED" && job.collectedMode === "PENDING_APPROVAL";
   if (job.status === "COMPLETED" && !pendingFix) return { error: "This job is already closed.", success: false as const };
 
-  const gate = checkCompletion({ amount: input.amount, mode: input.mode, note: input.note, otpVerified: true, needsOtp: false });
+  const gate = checkCompletion({ amount: input.amount, mode: input.mode, note: input.note, otpVerified: true, needsOtp: false, actor: session.role === "ADMIN" ? "ADMIN" : "OFFICE" });
   if (!gate.ok) return { error: gate.error, success: false as const };
   if (pendingFix && gate.mode === "PENDING_APPROVAL") return { error: "Choose how the payment was actually received.", success: false as const };
 

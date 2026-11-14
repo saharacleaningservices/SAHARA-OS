@@ -111,6 +111,9 @@ export default async function LeadDetailPage({ params, searchParams }: { params:
             {primary === "CREATE_QUOTATION" && (
               <QuotationDialog leadId={lead.id} service={lead.service} suggestedAmount={lead.quoteAmount} area={lead.area} notes={lead.notes} serviceItems={lead.serviceItems} discountAmount={lead.discountAmount} trigger={<Button size="sm"><FileText className="size-3.5" /> Create Quotation</Button>} />
             )}
+            {primary === "CONFIRM_BOOKING" && canConfirm && lead.source === "WEBSITE" && !activeJob && (
+              <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800" title="Confirm Booking sends the customer the booking details and the 4-digit Start OTP on WhatsApp">Pending Confirmation</span>
+            )}
             {primary === "CONFIRM_BOOKING" && canConfirm && (
               <ConfirmBookingDialog
                 leadId={lead.id}

@@ -95,7 +95,7 @@ export default async function FieldOpsPage() {
                 </div>
               )}
               {canClose && (r.needsClosure || r.cashWithStaff) && (
-                <OfficeActions jobId={r.id} balance={r.collectedMode === "PENDING_APPROVAL" || r.collectedAmount == null ? r.billed : 0} closable={r.needsClosure} cashWithStaff={Boolean(r.cashWithStaff)} />
+                <OfficeActions isAdmin={user.role === "ADMIN"} jobId={r.id} balance={r.collectedMode === "PENDING_APPROVAL" || r.collectedAmount == null ? r.billed : 0} closable={r.needsClosure} cashWithStaff={Boolean(r.cashWithStaff)} />
               )}
               {r.cashSettledAt && <div className="mt-1 text-xs text-muted-foreground">Cash received by {r.cashSettledByName} · {ist(r.cashSettledAt)} IST</div>}
             </li>

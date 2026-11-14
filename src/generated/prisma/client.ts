@@ -404,3 +404,13 @@ export type Vendor = Prisma.VendorModel
  * 
  */
 export type VendorPayout = Prisma.VendorPayoutModel
+/**
+ * Model MybillbookReviewItem
+ * 
+ */
+export type MybillbookReviewItem = Prisma.MybillbookReviewItemModel
+/**
+ * Model LocationPing
+ * 
+ */
+export type LocationPing = Prisma.LocationPingModel

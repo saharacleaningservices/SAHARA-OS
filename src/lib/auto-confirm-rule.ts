@@ -12,7 +12,7 @@ export function autoConfirmEligible(
   input: { serviceDate?: string | null; timeSlot?: string | null; serviceCategory?: string | null; inspectionRequired: boolean },
   env: Record<string, string | undefined> = process.env,
 ): { ok: true } | { ok: false; reason: string } {
-  if ((env.PUBLIC_AUTO_CONFIRM ?? "on").toLowerCase() === "off") return { ok: false, reason: "disabled" };
+  if ((env.PUBLIC_AUTO_CONFIRM ?? "off").toLowerCase() !== "on") return { ok: false, reason: "disabled" };
   const from = /^\d{4}-\d{2}-\d{2}$/.test(env.PUBLIC_AUTO_CONFIRM_FROM ?? "") ? env.PUBLIC_AUTO_CONFIRM_FROM! : AUTO_CONFIRM_DEFAULT_FROM;
   const ymd = (input.serviceDate ?? "").slice(0, 10);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return { ok: false, reason: "no-date" };

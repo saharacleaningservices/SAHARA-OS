@@ -32,6 +32,12 @@ export type JobAvgAggregateOutputType = {
   discountAmount: number | null
   gstAmount: number | null
   discountValue: number | null
+  reachedLat: number | null
+  reachedLng: number | null
+  reachedAccuracyM: number | null
+  reachedDistanceM: number | null
+  startOtpAttempts: number | null
+  collectedAmount: number | null
 }
 
 export type JobSumAggregateOutputType = {
@@ -40,6 +46,12 @@ export type JobSumAggregateOutputType = {
   discountAmount: number | null
   gstAmount: number | null
   discountValue: number | null
+  reachedLat: number | null
+  reachedLng: number | null
+  reachedAccuracyM: number | null
+  reachedDistanceM: number | null
+  startOtpAttempts: number | null
+  collectedAmount: number | null
 }
 
 export type JobMinAggregateOutputType = {
@@ -84,6 +96,24 @@ export type JobMinAggregateOutputType = {
   priceType: string | null
   festivalName: string | null
   scopeOfWork: string | null
+  reachedAt: Date | null
+  reachedLat: number | null
+  reachedLng: number | null
+  reachedAccuracyM: number | null
+  reachedDistanceM: number | null
+  gpsFlag: string | null
+  startOtp: string | null
+  startOtpSentAt: Date | null
+  startOtpVerifiedAt: Date | null
+  startOtpAttempts: number | null
+  collectedAmount: number | null
+  collectedMode: string | null
+  pendingReason: string | null
+  cashCollectedByStaffId: string | null
+  cashCollectedByName: string | null
+  cashCollectedAt: Date | null
+  cashSettledAt: Date | null
+  cashSettledByName: string | null
   mapLink: string | null
   siteId: string | null
   vehicleId: string | null
@@ -136,6 +166,24 @@ export type JobMaxAggregateOutputType = {
   priceType: string | null
   festivalName: string | null
   scopeOfWork: string | null
+  reachedAt: Date | null
+  reachedLat: number | null
+  reachedLng: number | null
+  reachedAccuracyM: number | null
+  reachedDistanceM: number | null
+  gpsFlag: string | null
+  startOtp: string | null
+  startOtpSentAt: Date | null
+  startOtpVerifiedAt: Date | null
+  startOtpAttempts: number | null
+  collectedAmount: number | null
+  collectedMode: string | null
+  pendingReason: string | null
+  cashCollectedByStaffId: string | null
+  cashCollectedByName: string | null
+  cashCollectedAt: Date | null
+  cashSettledAt: Date | null
+  cashSettledByName: string | null
   mapLink: string | null
   siteId: string | null
   vehicleId: string | null
@@ -188,6 +236,24 @@ export type JobCountAggregateOutputType = {
   priceType: number
   festivalName: number
   scopeOfWork: number
+  reachedAt: number
+  reachedLat: number
+  reachedLng: number
+  reachedAccuracyM: number
+  reachedDistanceM: number
+  gpsFlag: number
+  startOtp: number
+  startOtpSentAt: number
+  startOtpVerifiedAt: number
+  startOtpAttempts: number
+  collectedAmount: number
+  collectedMode: number
+  pendingReason: number
+  cashCollectedByStaffId: number
+  cashCollectedByName: number
+  cashCollectedAt: number
+  cashSettledAt: number
+  cashSettledByName: number
   mapLink: number
   siteId: number
   vehicleId: number
@@ -206,6 +272,12 @@ export type JobAvgAggregateInputType = {
   discountAmount?: true
   gstAmount?: true
   discountValue?: true
+  reachedLat?: true
+  reachedLng?: true
+  reachedAccuracyM?: true
+  reachedDistanceM?: true
+  startOtpAttempts?: true
+  collectedAmount?: true
 }
 
 export type JobSumAggregateInputType = {
@@ -214,6 +286,12 @@ export type JobSumAggregateInputType = {
   discountAmount?: true
   gstAmount?: true
   discountValue?: true
+  reachedLat?: true
+  reachedLng?: true
+  reachedAccuracyM?: true
+  reachedDistanceM?: true
+  startOtpAttempts?: true
+  collectedAmount?: true
 }
 
 export type JobMinAggregateInputType = {
@@ -258,6 +336,24 @@ export type JobMinAggregateInputType = {
   priceType?: true
   festivalName?: true
   scopeOfWork?: true
+  reachedAt?: true
+  reachedLat?: true
+  reachedLng?: true
+  reachedAccuracyM?: true
+  reachedDistanceM?: true
+  gpsFlag?: true
+  startOtp?: true
+  startOtpSentAt?: true
+  startOtpVerifiedAt?: true
+  startOtpAttempts?: true
+  collectedAmount?: true
+  collectedMode?: true
+  pendingReason?: true
+  cashCollectedByStaffId?: true
+  cashCollectedByName?: true
+  cashCollectedAt?: true
+  cashSettledAt?: true
+  cashSettledByName?: true
   mapLink?: true
   siteId?: true
   vehicleId?: true
@@ -310,6 +406,24 @@ export type JobMaxAggregateInputType = {
   priceType?: true
   festivalName?: true
   scopeOfWork?: true
+  reachedAt?: true
+  reachedLat?: true
+  reachedLng?: true
+  reachedAccuracyM?: true
+  reachedDistanceM?: true
+  gpsFlag?: true
+  startOtp?: true
+  startOtpSentAt?: true
+  startOtpVerifiedAt?: true
+  startOtpAttempts?: true
+  collectedAmount?: true
+  collectedMode?: true
+  pendingReason?: true
+  cashCollectedByStaffId?: true
+  cashCollectedByName?: true
+  cashCollectedAt?: true
+  cashSettledAt?: true
+  cashSettledByName?: true
   mapLink?: true
   siteId?: true
   vehicleId?: true
@@ -362,6 +476,24 @@ export type JobCountAggregateInputType = {
   priceType?: true
   festivalName?: true
   scopeOfWork?: true
+  reachedAt?: true
+  reachedLat?: true
+  reachedLng?: true
+  reachedAccuracyM?: true
+  reachedDistanceM?: true
+  gpsFlag?: true
+  startOtp?: true
+  startOtpSentAt?: true
+  startOtpVerifiedAt?: true
+  startOtpAttempts?: true
+  collectedAmount?: true
+  collectedMode?: true
+  pendingReason?: true
+  cashCollectedByStaffId?: true
+  cashCollectedByName?: true
+  cashCollectedAt?: true
+  cashSettledAt?: true
+  cashSettledByName?: true
   mapLink?: true
   siteId?: true
   vehicleId?: true
@@ -501,6 +633,24 @@ export type JobGroupByOutputType = {
   priceType: string | null
   festivalName: string | null
   scopeOfWork: string | null
+  reachedAt: Date | null
+  reachedLat: number | null
+  reachedLng: number | null
+  reachedAccuracyM: number | null
+  reachedDistanceM: number | null
+  gpsFlag: string | null
+  startOtp: string | null
+  startOtpSentAt: Date | null
+  startOtpVerifiedAt: Date | null
+  startOtpAttempts: number
+  collectedAmount: number | null
+  collectedMode: string | null
+  pendingReason: string | null
+  cashCollectedByStaffId: string | null
+  cashCollectedByName: string | null
+  cashCollectedAt: Date | null
+  cashSettledAt: Date | null
+  cashSettledByName: string | null
   mapLink: string | null
   siteId: string | null
   vehicleId: string | null
@@ -576,6 +726,24 @@ export type JobWhereInput = {
   priceType?: Prisma.StringNullableFilter<"Job"> | string | null
   festivalName?: Prisma.StringNullableFilter<"Job"> | string | null
   scopeOfWork?: Prisma.StringNullableFilter<"Job"> | string | null
+  reachedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  reachedLat?: Prisma.FloatNullableFilter<"Job"> | number | null
+  reachedLng?: Prisma.FloatNullableFilter<"Job"> | number | null
+  reachedAccuracyM?: Prisma.IntNullableFilter<"Job"> | number | null
+  reachedDistanceM?: Prisma.IntNullableFilter<"Job"> | number | null
+  gpsFlag?: Prisma.StringNullableFilter<"Job"> | string | null
+  startOtp?: Prisma.StringNullableFilter<"Job"> | string | null
+  startOtpSentAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  startOtpVerifiedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  startOtpAttempts?: Prisma.IntFilter<"Job"> | number
+  collectedAmount?: Prisma.FloatNullableFilter<"Job"> | number | null
+  collectedMode?: Prisma.StringNullableFilter<"Job"> | string | null
+  pendingReason?: Prisma.StringNullableFilter<"Job"> | string | null
+  cashCollectedByStaffId?: Prisma.StringNullableFilter<"Job"> | string | null
+  cashCollectedByName?: Prisma.StringNullableFilter<"Job"> | string | null
+  cashCollectedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  cashSettledAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  cashSettledByName?: Prisma.StringNullableFilter<"Job"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Job"> | string | null
   siteId?: Prisma.StringNullableFilter<"Job"> | string | null
   vehicleId?: Prisma.StringNullableFilter<"Job"> | string | null
@@ -640,6 +808,24 @@ export type JobOrderByWithRelationInput = {
   priceType?: Prisma.SortOrderInput | Prisma.SortOrder
   festivalName?: Prisma.SortOrderInput | Prisma.SortOrder
   scopeOfWork?: Prisma.SortOrderInput | Prisma.SortOrder
+  reachedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  reachedLat?: Prisma.SortOrderInput | Prisma.SortOrder
+  reachedLng?: Prisma.SortOrderInput | Prisma.SortOrder
+  reachedAccuracyM?: Prisma.SortOrderInput | Prisma.SortOrder
+  reachedDistanceM?: Prisma.SortOrderInput | Prisma.SortOrder
+  gpsFlag?: Prisma.SortOrderInput | Prisma.SortOrder
+  startOtp?: Prisma.SortOrderInput | Prisma.SortOrder
+  startOtpSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  startOtpVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  startOtpAttempts?: Prisma.SortOrder
+  collectedAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  collectedMode?: Prisma.SortOrderInput | Prisma.SortOrder
+  pendingReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  cashCollectedByStaffId?: Prisma.SortOrderInput | Prisma.SortOrder
+  cashCollectedByName?: Prisma.SortOrderInput | Prisma.SortOrder
+  cashCollectedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  cashSettledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  cashSettledByName?: Prisma.SortOrderInput | Prisma.SortOrder
   mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
   siteId?: Prisma.SortOrderInput | Prisma.SortOrder
   vehicleId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -707,6 +893,24 @@ export type JobWhereUniqueInput = Prisma.AtLeast<{
   priceType?: Prisma.StringNullableFilter<"Job"> | string | null
   festivalName?: Prisma.StringNullableFilter<"Job"> | string | null
   scopeOfWork?: Prisma.StringNullableFilter<"Job"> | string | null
+  reachedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  reachedLat?: Prisma.FloatNullableFilter<"Job"> | number | null
+  reachedLng?: Prisma.FloatNullableFilter<"Job"> | number | null
+  reachedAccuracyM?: Prisma.IntNullableFilter<"Job"> | number | null
+  reachedDistanceM?: Prisma.IntNullableFilter<"Job"> | number | null
+  gpsFlag?: Prisma.StringNullableFilter<"Job"> | string | null
+  startOtp?: Prisma.StringNullableFilter<"Job"> | string | null
+  startOtpSentAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  startOtpVerifiedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  startOtpAttempts?: Prisma.IntFilter<"Job"> | number
+  collectedAmount?: Prisma.FloatNullableFilter<"Job"> | number | null
+  collectedMode?: Prisma.StringNullableFilter<"Job"> | string | null
+  pendingReason?: Prisma.StringNullableFilter<"Job"> | string | null
+  cashCollectedByStaffId?: Prisma.StringNullableFilter<"Job"> | string | null
+  cashCollectedByName?: Prisma.StringNullableFilter<"Job"> | string | null
+  cashCollectedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  cashSettledAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  cashSettledByName?: Prisma.StringNullableFilter<"Job"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Job"> | string | null
   siteId?: Prisma.StringNullableFilter<"Job"> | string | null
   vehicleId?: Prisma.StringNullableFilter<"Job"> | string | null
@@ -771,6 +975,24 @@ export type JobOrderByWithAggregationInput = {
   priceType?: Prisma.SortOrderInput | Prisma.SortOrder
   festivalName?: Prisma.SortOrderInput | Prisma.SortOrder
   scopeOfWork?: Prisma.SortOrderInput | Prisma.SortOrder
+  reachedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  reachedLat?: Prisma.SortOrderInput | Prisma.SortOrder
+  reachedLng?: Prisma.SortOrderInput | Prisma.SortOrder
+  reachedAccuracyM?: Prisma.SortOrderInput | Prisma.SortOrder
+  reachedDistanceM?: Prisma.SortOrderInput | Prisma.SortOrder
+  gpsFlag?: Prisma.SortOrderInput | Prisma.SortOrder
+  startOtp?: Prisma.SortOrderInput | Prisma.SortOrder
+  startOtpSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  startOtpVerifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  startOtpAttempts?: Prisma.SortOrder
+  collectedAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  collectedMode?: Prisma.SortOrderInput | Prisma.SortOrder
+  pendingReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  cashCollectedByStaffId?: Prisma.SortOrderInput | Prisma.SortOrder
+  cashCollectedByName?: Prisma.SortOrderInput | Prisma.SortOrder
+  cashCollectedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  cashSettledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  cashSettledByName?: Prisma.SortOrderInput | Prisma.SortOrder
   mapLink?: Prisma.SortOrderInput | Prisma.SortOrder
   siteId?: Prisma.SortOrderInput | Prisma.SortOrder
   vehicleId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -831,6 +1053,24 @@ export type JobScalarWhereWithAggregatesInput = {
   priceType?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   festivalName?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   scopeOfWork?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  reachedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Job"> | Date | string | null
+  reachedLat?: Prisma.FloatNullableWithAggregatesFilter<"Job"> | number | null
+  reachedLng?: Prisma.FloatNullableWithAggregatesFilter<"Job"> | number | null
+  reachedAccuracyM?: Prisma.IntNullableWithAggregatesFilter<"Job"> | number | null
+  reachedDistanceM?: Prisma.IntNullableWithAggregatesFilter<"Job"> | number | null
+  gpsFlag?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  startOtp?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  startOtpSentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Job"> | Date | string | null
+  startOtpVerifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Job"> | Date | string | null
+  startOtpAttempts?: Prisma.IntWithAggregatesFilter<"Job"> | number
+  collectedAmount?: Prisma.FloatNullableWithAggregatesFilter<"Job"> | number | null
+  collectedMode?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  pendingReason?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  cashCollectedByStaffId?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  cashCollectedByName?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
+  cashCollectedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Job"> | Date | string | null
+  cashSettledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Job"> | Date | string | null
+  cashSettledByName?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   mapLink?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   siteId?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
   vehicleId?: Prisma.StringNullableWithAggregatesFilter<"Job"> | string | null
@@ -881,6 +1121,24 @@ export type JobCreateInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   isDemo?: boolean
@@ -944,6 +1202,24 @@ export type JobUncheckedCreateInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   vehicleId?: string | null
@@ -1003,6 +1279,24 @@ export type JobUpdateInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1066,6 +1360,24 @@ export type JobUncheckedUpdateInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1127,6 +1439,24 @@ export type JobCreateManyInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   vehicleId?: string | null
@@ -1177,6 +1507,24 @@ export type JobUpdateManyMutationInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1228,6 +1576,24 @@ export type JobUncheckedUpdateManyInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1290,6 +1656,24 @@ export type JobCountOrderByAggregateInput = {
   priceType?: Prisma.SortOrder
   festivalName?: Prisma.SortOrder
   scopeOfWork?: Prisma.SortOrder
+  reachedAt?: Prisma.SortOrder
+  reachedLat?: Prisma.SortOrder
+  reachedLng?: Prisma.SortOrder
+  reachedAccuracyM?: Prisma.SortOrder
+  reachedDistanceM?: Prisma.SortOrder
+  gpsFlag?: Prisma.SortOrder
+  startOtp?: Prisma.SortOrder
+  startOtpSentAt?: Prisma.SortOrder
+  startOtpVerifiedAt?: Prisma.SortOrder
+  startOtpAttempts?: Prisma.SortOrder
+  collectedAmount?: Prisma.SortOrder
+  collectedMode?: Prisma.SortOrder
+  pendingReason?: Prisma.SortOrder
+  cashCollectedByStaffId?: Prisma.SortOrder
+  cashCollectedByName?: Prisma.SortOrder
+  cashCollectedAt?: Prisma.SortOrder
+  cashSettledAt?: Prisma.SortOrder
+  cashSettledByName?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
   siteId?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
@@ -1306,6 +1690,12 @@ export type JobAvgOrderByAggregateInput = {
   discountAmount?: Prisma.SortOrder
   gstAmount?: Prisma.SortOrder
   discountValue?: Prisma.SortOrder
+  reachedLat?: Prisma.SortOrder
+  reachedLng?: Prisma.SortOrder
+  reachedAccuracyM?: Prisma.SortOrder
+  reachedDistanceM?: Prisma.SortOrder
+  startOtpAttempts?: Prisma.SortOrder
+  collectedAmount?: Prisma.SortOrder
 }
 
 export type JobMaxOrderByAggregateInput = {
@@ -1350,6 +1740,24 @@ export type JobMaxOrderByAggregateInput = {
   priceType?: Prisma.SortOrder
   festivalName?: Prisma.SortOrder
   scopeOfWork?: Prisma.SortOrder
+  reachedAt?: Prisma.SortOrder
+  reachedLat?: Prisma.SortOrder
+  reachedLng?: Prisma.SortOrder
+  reachedAccuracyM?: Prisma.SortOrder
+  reachedDistanceM?: Prisma.SortOrder
+  gpsFlag?: Prisma.SortOrder
+  startOtp?: Prisma.SortOrder
+  startOtpSentAt?: Prisma.SortOrder
+  startOtpVerifiedAt?: Prisma.SortOrder
+  startOtpAttempts?: Prisma.SortOrder
+  collectedAmount?: Prisma.SortOrder
+  collectedMode?: Prisma.SortOrder
+  pendingReason?: Prisma.SortOrder
+  cashCollectedByStaffId?: Prisma.SortOrder
+  cashCollectedByName?: Prisma.SortOrder
+  cashCollectedAt?: Prisma.SortOrder
+  cashSettledAt?: Prisma.SortOrder
+  cashSettledByName?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
   siteId?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
@@ -1402,6 +1810,24 @@ export type JobMinOrderByAggregateInput = {
   priceType?: Prisma.SortOrder
   festivalName?: Prisma.SortOrder
   scopeOfWork?: Prisma.SortOrder
+  reachedAt?: Prisma.SortOrder
+  reachedLat?: Prisma.SortOrder
+  reachedLng?: Prisma.SortOrder
+  reachedAccuracyM?: Prisma.SortOrder
+  reachedDistanceM?: Prisma.SortOrder
+  gpsFlag?: Prisma.SortOrder
+  startOtp?: Prisma.SortOrder
+  startOtpSentAt?: Prisma.SortOrder
+  startOtpVerifiedAt?: Prisma.SortOrder
+  startOtpAttempts?: Prisma.SortOrder
+  collectedAmount?: Prisma.SortOrder
+  collectedMode?: Prisma.SortOrder
+  pendingReason?: Prisma.SortOrder
+  cashCollectedByStaffId?: Prisma.SortOrder
+  cashCollectedByName?: Prisma.SortOrder
+  cashCollectedAt?: Prisma.SortOrder
+  cashSettledAt?: Prisma.SortOrder
+  cashSettledByName?: Prisma.SortOrder
   mapLink?: Prisma.SortOrder
   siteId?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
@@ -1418,6 +1844,12 @@ export type JobSumOrderByAggregateInput = {
   discountAmount?: Prisma.SortOrder
   gstAmount?: Prisma.SortOrder
   discountValue?: Prisma.SortOrder
+  reachedLat?: Prisma.SortOrder
+  reachedLng?: Prisma.SortOrder
+  reachedAccuracyM?: Prisma.SortOrder
+  reachedDistanceM?: Prisma.SortOrder
+  startOtpAttempts?: Prisma.SortOrder
+  collectedAmount?: Prisma.SortOrder
 }
 
 export type JobScalarRelationFilter = {
@@ -1734,6 +2166,24 @@ export type JobCreateWithoutSupervisorInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   isDemo?: boolean
@@ -1795,6 +2245,24 @@ export type JobUncheckedCreateWithoutSupervisorInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   vehicleId?: string | null
@@ -1884,6 +2352,24 @@ export type JobScalarWhereInput = {
   priceType?: Prisma.StringNullableFilter<"Job"> | string | null
   festivalName?: Prisma.StringNullableFilter<"Job"> | string | null
   scopeOfWork?: Prisma.StringNullableFilter<"Job"> | string | null
+  reachedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  reachedLat?: Prisma.FloatNullableFilter<"Job"> | number | null
+  reachedLng?: Prisma.FloatNullableFilter<"Job"> | number | null
+  reachedAccuracyM?: Prisma.IntNullableFilter<"Job"> | number | null
+  reachedDistanceM?: Prisma.IntNullableFilter<"Job"> | number | null
+  gpsFlag?: Prisma.StringNullableFilter<"Job"> | string | null
+  startOtp?: Prisma.StringNullableFilter<"Job"> | string | null
+  startOtpSentAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  startOtpVerifiedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  startOtpAttempts?: Prisma.IntFilter<"Job"> | number
+  collectedAmount?: Prisma.FloatNullableFilter<"Job"> | number | null
+  collectedMode?: Prisma.StringNullableFilter<"Job"> | string | null
+  pendingReason?: Prisma.StringNullableFilter<"Job"> | string | null
+  cashCollectedByStaffId?: Prisma.StringNullableFilter<"Job"> | string | null
+  cashCollectedByName?: Prisma.StringNullableFilter<"Job"> | string | null
+  cashCollectedAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  cashSettledAt?: Prisma.DateTimeNullableFilter<"Job"> | Date | string | null
+  cashSettledByName?: Prisma.StringNullableFilter<"Job"> | string | null
   mapLink?: Prisma.StringNullableFilter<"Job"> | string | null
   siteId?: Prisma.StringNullableFilter<"Job"> | string | null
   vehicleId?: Prisma.StringNullableFilter<"Job"> | string | null
@@ -1934,6 +2420,24 @@ export type JobCreateWithoutLeadInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   isDemo?: boolean
@@ -1995,6 +2499,24 @@ export type JobUncheckedCreateWithoutLeadInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   vehicleId?: string | null
@@ -2079,6 +2601,24 @@ export type JobCreateWithoutAssignmentsInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   isDemo?: boolean
@@ -2141,6 +2681,24 @@ export type JobUncheckedCreateWithoutAssignmentsInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   vehicleId?: string | null
@@ -2215,6 +2773,24 @@ export type JobUpdateWithoutAssignmentsInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2277,6 +2853,24 @@ export type JobUncheckedUpdateWithoutAssignmentsInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2335,6 +2929,24 @@ export type JobCreateWithoutPhotosInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   isDemo?: boolean
@@ -2397,6 +3009,24 @@ export type JobUncheckedCreateWithoutPhotosInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   vehicleId?: string | null
@@ -2471,6 +3101,24 @@ export type JobUpdateWithoutPhotosInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2533,6 +3181,24 @@ export type JobUncheckedUpdateWithoutPhotosInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2591,6 +3257,24 @@ export type JobCreateWithoutCertificateInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   isDemo?: boolean
@@ -2653,6 +3337,24 @@ export type JobUncheckedCreateWithoutCertificateInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   vehicleId?: string | null
@@ -2727,6 +3429,24 @@ export type JobUpdateWithoutCertificateInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2789,6 +3509,24 @@ export type JobUncheckedUpdateWithoutCertificateInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2847,6 +3585,24 @@ export type JobCreateWithoutPaymentsInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   isDemo?: boolean
@@ -2909,6 +3665,24 @@ export type JobUncheckedCreateWithoutPaymentsInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   vehicleId?: string | null
@@ -2983,6 +3757,24 @@ export type JobUpdateWithoutPaymentsInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3045,6 +3837,24 @@ export type JobUncheckedUpdateWithoutPaymentsInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3103,6 +3913,24 @@ export type JobCreateWithoutExpensesInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   isDemo?: boolean
@@ -3165,6 +3993,24 @@ export type JobUncheckedCreateWithoutExpensesInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   vehicleId?: string | null
@@ -3239,6 +4085,24 @@ export type JobUpdateWithoutExpensesInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3301,6 +4165,24 @@ export type JobUncheckedUpdateWithoutExpensesInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3359,6 +4241,24 @@ export type JobCreateWithoutActivityLogsInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   isDemo?: boolean
@@ -3421,6 +4321,24 @@ export type JobUncheckedCreateWithoutActivityLogsInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   vehicleId?: string | null
@@ -3495,6 +4413,24 @@ export type JobUpdateWithoutActivityLogsInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3557,6 +4493,24 @@ export type JobUncheckedUpdateWithoutActivityLogsInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3615,6 +4569,24 @@ export type JobCreateWithoutVehicleInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   isDemo?: boolean
@@ -3677,6 +4649,24 @@ export type JobUncheckedCreateWithoutVehicleInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   isDemo?: boolean
@@ -3760,6 +4750,24 @@ export type JobCreateWithoutMaterialIssuesInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   isDemo?: boolean
@@ -3822,6 +4830,24 @@ export type JobUncheckedCreateWithoutMaterialIssuesInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   vehicleId?: string | null
@@ -3896,6 +4922,24 @@ export type JobUpdateWithoutMaterialIssuesInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3958,6 +5002,24 @@ export type JobUncheckedUpdateWithoutMaterialIssuesInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4016,6 +5078,24 @@ export type JobCreateWithoutInvoiceInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   isDemo?: boolean
@@ -4078,6 +5158,24 @@ export type JobUncheckedCreateWithoutInvoiceInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   vehicleId?: string | null
@@ -4152,6 +5250,24 @@ export type JobUpdateWithoutInvoiceInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4214,6 +5330,24 @@ export type JobUncheckedUpdateWithoutInvoiceInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4272,6 +5406,24 @@ export type JobCreateWithoutVideosInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   isDemo?: boolean
@@ -4334,6 +5486,24 @@ export type JobUncheckedCreateWithoutVideosInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   vehicleId?: string | null
@@ -4408,6 +5578,24 @@ export type JobUpdateWithoutVideosInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4470,6 +5658,24 @@ export type JobUncheckedUpdateWithoutVideosInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4529,6 +5735,24 @@ export type JobCreateManySupervisorInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   vehicleId?: string | null
@@ -4579,6 +5803,24 @@ export type JobUpdateWithoutSupervisorInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4640,6 +5882,24 @@ export type JobUncheckedUpdateWithoutSupervisorInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4700,6 +5960,24 @@ export type JobUncheckedUpdateManyWithoutSupervisorInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4751,6 +6029,24 @@ export type JobCreateManyLeadInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   vehicleId?: string | null
@@ -4801,6 +6097,24 @@ export type JobUpdateWithoutLeadInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4862,6 +6176,24 @@ export type JobUncheckedUpdateWithoutLeadInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4922,6 +6254,24 @@ export type JobUncheckedUpdateManyWithoutLeadInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   vehicleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4974,6 +6324,24 @@ export type JobCreateManyVehicleInput = {
   priceType?: string | null
   festivalName?: string | null
   scopeOfWork?: string | null
+  reachedAt?: Date | string | null
+  reachedLat?: number | null
+  reachedLng?: number | null
+  reachedAccuracyM?: number | null
+  reachedDistanceM?: number | null
+  gpsFlag?: string | null
+  startOtp?: string | null
+  startOtpSentAt?: Date | string | null
+  startOtpVerifiedAt?: Date | string | null
+  startOtpAttempts?: number
+  collectedAmount?: number | null
+  collectedMode?: string | null
+  pendingReason?: string | null
+  cashCollectedByStaffId?: string | null
+  cashCollectedByName?: string | null
+  cashCollectedAt?: Date | string | null
+  cashSettledAt?: Date | string | null
+  cashSettledByName?: string | null
   mapLink?: string | null
   siteId?: string | null
   isDemo?: boolean
@@ -5023,6 +6391,24 @@ export type JobUpdateWithoutVehicleInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5085,6 +6471,24 @@ export type JobUncheckedUpdateWithoutVehicleInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5145,6 +6549,24 @@ export type JobUncheckedUpdateManyWithoutVehicleInput = {
   priceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   festivalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeOfWork?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reachedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reachedLat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedLng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  reachedAccuracyM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reachedDistanceM?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gpsFlag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtp?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startOtpSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpVerifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startOtpAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  collectedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  collectedMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pendingReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByStaffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashCollectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  cashSettledByName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mapLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   siteId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDemo?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5281,6 +6703,24 @@ export type JobSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   priceType?: boolean
   festivalName?: boolean
   scopeOfWork?: boolean
+  reachedAt?: boolean
+  reachedLat?: boolean
+  reachedLng?: boolean
+  reachedAccuracyM?: boolean
+  reachedDistanceM?: boolean
+  gpsFlag?: boolean
+  startOtp?: boolean
+  startOtpSentAt?: boolean
+  startOtpVerifiedAt?: boolean
+  startOtpAttempts?: boolean
+  collectedAmount?: boolean
+  collectedMode?: boolean
+  pendingReason?: boolean
+  cashCollectedByStaffId?: boolean
+  cashCollectedByName?: boolean
+  cashCollectedAt?: boolean
+  cashSettledAt?: boolean
+  cashSettledByName?: boolean
   mapLink?: boolean
   siteId?: boolean
   vehicleId?: boolean
@@ -5346,6 +6786,24 @@ export type JobSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extension
   priceType?: boolean
   festivalName?: boolean
   scopeOfWork?: boolean
+  reachedAt?: boolean
+  reachedLat?: boolean
+  reachedLng?: boolean
+  reachedAccuracyM?: boolean
+  reachedDistanceM?: boolean
+  gpsFlag?: boolean
+  startOtp?: boolean
+  startOtpSentAt?: boolean
+  startOtpVerifiedAt?: boolean
+  startOtpAttempts?: boolean
+  collectedAmount?: boolean
+  collectedMode?: boolean
+  pendingReason?: boolean
+  cashCollectedByStaffId?: boolean
+  cashCollectedByName?: boolean
+  cashCollectedAt?: boolean
+  cashSettledAt?: boolean
+  cashSettledByName?: boolean
   mapLink?: boolean
   siteId?: boolean
   vehicleId?: boolean
@@ -5401,6 +6859,24 @@ export type JobSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extension
   priceType?: boolean
   festivalName?: boolean
   scopeOfWork?: boolean
+  reachedAt?: boolean
+  reachedLat?: boolean
+  reachedLng?: boolean
+  reachedAccuracyM?: boolean
+  reachedDistanceM?: boolean
+  gpsFlag?: boolean
+  startOtp?: boolean
+  startOtpSentAt?: boolean
+  startOtpVerifiedAt?: boolean
+  startOtpAttempts?: boolean
+  collectedAmount?: boolean
+  collectedMode?: boolean
+  pendingReason?: boolean
+  cashCollectedByStaffId?: boolean
+  cashCollectedByName?: boolean
+  cashCollectedAt?: boolean
+  cashSettledAt?: boolean
+  cashSettledByName?: boolean
   mapLink?: boolean
   siteId?: boolean
   vehicleId?: boolean
@@ -5456,6 +6932,24 @@ export type JobSelectScalar = {
   priceType?: boolean
   festivalName?: boolean
   scopeOfWork?: boolean
+  reachedAt?: boolean
+  reachedLat?: boolean
+  reachedLng?: boolean
+  reachedAccuracyM?: boolean
+  reachedDistanceM?: boolean
+  gpsFlag?: boolean
+  startOtp?: boolean
+  startOtpSentAt?: boolean
+  startOtpVerifiedAt?: boolean
+  startOtpAttempts?: boolean
+  collectedAmount?: boolean
+  collectedMode?: boolean
+  pendingReason?: boolean
+  cashCollectedByStaffId?: boolean
+  cashCollectedByName?: boolean
+  cashCollectedAt?: boolean
+  cashSettledAt?: boolean
+  cashSettledByName?: boolean
   mapLink?: boolean
   siteId?: boolean
   vehicleId?: boolean
@@ -5466,7 +6960,7 @@ export type JobSelectScalar = {
   updatedAt?: boolean
 }
 
-export type JobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobNumber" | "leadId" | "customerName" | "customerMobile" | "alternateMobile" | "address" | "area" | "pinCode" | "service" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "scheduledDate" | "scheduledTime" | "teamNumber" | "publicToken" | "shortCode" | "paymentPreference" | "advanceRequestedAt" | "supervisorId" | "status" | "onTheWayAt" | "startedAt" | "completedAt" | "jobValue" | "notes" | "customerSignatureUrl" | "signedAt" | "teamSnapshot" | "serviceItems" | "discountAmount" | "gstEnabled" | "gstAmount" | "customerGstin" | "discountMode" | "discountValue" | "priceType" | "festivalName" | "scopeOfWork" | "mapLink" | "siteId" | "vehicleId" | "isDemo" | "deletedAt" | "deletedByName" | "createdAt" | "updatedAt", ExtArgs["result"]["job"]>
+export type JobOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "jobNumber" | "leadId" | "customerName" | "customerMobile" | "alternateMobile" | "address" | "area" | "pinCode" | "service" | "serviceVariant" | "propertyType" | "packageName" | "comboServices" | "scheduledDate" | "scheduledTime" | "teamNumber" | "publicToken" | "shortCode" | "paymentPreference" | "advanceRequestedAt" | "supervisorId" | "status" | "onTheWayAt" | "startedAt" | "completedAt" | "jobValue" | "notes" | "customerSignatureUrl" | "signedAt" | "teamSnapshot" | "serviceItems" | "discountAmount" | "gstEnabled" | "gstAmount" | "customerGstin" | "discountMode" | "discountValue" | "priceType" | "festivalName" | "scopeOfWork" | "reachedAt" | "reachedLat" | "reachedLng" | "reachedAccuracyM" | "reachedDistanceM" | "gpsFlag" | "startOtp" | "startOtpSentAt" | "startOtpVerifiedAt" | "startOtpAttempts" | "collectedAmount" | "collectedMode" | "pendingReason" | "cashCollectedByStaffId" | "cashCollectedByName" | "cashCollectedAt" | "cashSettledAt" | "cashSettledByName" | "mapLink" | "siteId" | "vehicleId" | "isDemo" | "deletedAt" | "deletedByName" | "createdAt" | "updatedAt", ExtArgs["result"]["job"]>
 export type JobInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lead?: boolean | Prisma.Job$leadArgs<ExtArgs>
   supervisor?: boolean | Prisma.Job$supervisorArgs<ExtArgs>
@@ -5551,6 +7045,24 @@ export type $JobPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     priceType: string | null
     festivalName: string | null
     scopeOfWork: string | null
+    reachedAt: Date | null
+    reachedLat: number | null
+    reachedLng: number | null
+    reachedAccuracyM: number | null
+    reachedDistanceM: number | null
+    gpsFlag: string | null
+    startOtp: string | null
+    startOtpSentAt: Date | null
+    startOtpVerifiedAt: Date | null
+    startOtpAttempts: number
+    collectedAmount: number | null
+    collectedMode: string | null
+    pendingReason: string | null
+    cashCollectedByStaffId: string | null
+    cashCollectedByName: string | null
+    cashCollectedAt: Date | null
+    cashSettledAt: Date | null
+    cashSettledByName: string | null
     mapLink: string | null
     siteId: string | null
     vehicleId: string | null
@@ -6035,6 +7547,24 @@ export interface JobFieldRefs {
   readonly priceType: Prisma.FieldRef<"Job", 'String'>
   readonly festivalName: Prisma.FieldRef<"Job", 'String'>
   readonly scopeOfWork: Prisma.FieldRef<"Job", 'String'>
+  readonly reachedAt: Prisma.FieldRef<"Job", 'DateTime'>
+  readonly reachedLat: Prisma.FieldRef<"Job", 'Float'>
+  readonly reachedLng: Prisma.FieldRef<"Job", 'Float'>
+  readonly reachedAccuracyM: Prisma.FieldRef<"Job", 'Int'>
+  readonly reachedDistanceM: Prisma.FieldRef<"Job", 'Int'>
+  readonly gpsFlag: Prisma.FieldRef<"Job", 'String'>
+  readonly startOtp: Prisma.FieldRef<"Job", 'String'>
+  readonly startOtpSentAt: Prisma.FieldRef<"Job", 'DateTime'>
+  readonly startOtpVerifiedAt: Prisma.FieldRef<"Job", 'DateTime'>
+  readonly startOtpAttempts: Prisma.FieldRef<"Job", 'Int'>
+  readonly collectedAmount: Prisma.FieldRef<"Job", 'Float'>
+  readonly collectedMode: Prisma.FieldRef<"Job", 'String'>
+  readonly pendingReason: Prisma.FieldRef<"Job", 'String'>
+  readonly cashCollectedByStaffId: Prisma.FieldRef<"Job", 'String'>
+  readonly cashCollectedByName: Prisma.FieldRef<"Job", 'String'>
+  readonly cashCollectedAt: Prisma.FieldRef<"Job", 'DateTime'>
+  readonly cashSettledAt: Prisma.FieldRef<"Job", 'DateTime'>
+  readonly cashSettledByName: Prisma.FieldRef<"Job", 'String'>
   readonly mapLink: Prisma.FieldRef<"Job", 'String'>
   readonly siteId: Prisma.FieldRef<"Job", 'String'>
   readonly vehicleId: Prisma.FieldRef<"Job", 'String'>

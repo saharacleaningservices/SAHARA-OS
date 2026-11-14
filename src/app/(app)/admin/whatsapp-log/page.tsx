@@ -14,6 +14,7 @@ import { formatDateTime } from "@/lib/utils";
 import { Info } from "lucide-react";
 import { MetaTemplateSubmitCard } from "@/components/settings/meta-template-submit-card";
 import { SUBMITTABLE_TEMPLATES } from "@/lib/meta-template-payload";
+import { BOOKING_OTP_TEMPLATE_NAME, BOOKING_OTP_TEMPLATE_VARIABLES, renderTemplatePreview, templateByName } from "@/lib/whatsapp-cloud-templates";
 
 export default async function MessageLogPage() {
   const me = await requireRole(["ADMIN", "ACCOUNTS"]);
@@ -85,6 +86,32 @@ export default async function MessageLogPage() {
 
       {stalePreview && <WhatsAppStaleQueueCard initial={stalePreview} />}
       {me.role === "ADMIN" && <MetaTemplateSubmitCard names={SUBMITTABLE_TEMPLATES} />}
+      {me.role === "ADMIN" && (() => {
+        const t = templateByName(BOOKING_OTP_TEMPLATE_NAME);
+        if (!t) return null;
+        const live = process.env.WHATSAPP_USE_TEMPLATES === "on" && process.env.WHATSAPP_BOOKING_TEMPLATE === "otp1";
+        return (
+          <div className="space-y-2 rounded-lg border border-border bg-card p-4 text-sm">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-base font-semibold">Booking confirmation + Start OTP (Meta template)</h2>
+              <Badge variant={live ? "success" : "muted"}>{live ? "In use" : "Not switched on: customers get the plain-text version with the same OTP"}</Badge>
+            </div>
+            <p>Sent when the office taps <b>Confirm Booking</b>. Submit exactly this in Meta WhatsApp Manager (or use the submit card below), then set <code>WHATSAPP_USE_TEMPLATES=on</code> and <code>WHATSAPP_BOOKING_TEMPLATE=otp1</code> in Coolify once Meta shows it as Approved.</p>
+            <dl className="grid grid-cols-[9rem_1fr] gap-x-3 gap-y-1">
+              <dt className="text-muted-foreground">Template name</dt><dd><code className="font-mono">{t.name}</code></dd>
+              <dt className="text-muted-foreground">Language code</dt><dd><code className="font-mono">{t.language}</code> (English)</dd>
+              <dt className="text-muted-foreground">Category</dt><dd>{t.category}</dd>
+              <dt className="text-muted-foreground">Body</dt><dd><pre className="whitespace-pre-wrap font-sans">{t.body}</pre></dd>
+              <dt className="text-muted-foreground">Footer</dt><dd>{t.footer}</dd>
+              <dt className="text-muted-foreground">Button</dt><dd>URL “View Booking” → <code className="break-all">{t.buttons?.[0] && "url" in t.buttons[0] ? t.buttons[0].url : ""}</code></dd>
+              <dt className="text-muted-foreground">Variables</dt>
+              <dd><ol className="space-y-0.5">{BOOKING_OTP_TEMPLATE_VARIABLES.map((v, i) => <li key={v}><code className="font-mono">{`{{${i + 1}}}`}</code> = {v} <span className="text-muted-foreground">(e.g. {t.examples[i]})</span></li>)}</ol></dd>
+              <dt className="text-muted-foreground">Preview</dt><dd><pre className="whitespace-pre-wrap font-sans text-muted-foreground">{renderTemplatePreview(t, t.examples)}</pre></dd>
+            </dl>
+          </div>
+        );
+      })()}
+
 
       <WhatsAppConsentCard optedOut={optedOut} />
 

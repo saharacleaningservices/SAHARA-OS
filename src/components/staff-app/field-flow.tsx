@@ -9,15 +9,14 @@ import { cn } from "@/lib/utils";
 
 type Labels = Record<
   | "onTheWay" | "reached" | "reachedHint" | "locating" | "otpTitle" | "otpHint" | "verify" | "collectClose" | "total" | "advance" | "balance" | "payQr" | "reviewQr"
-  | "collected" | "mode" | "modeUpi" | "modeCash" | "modeBank" | "modePending" | "reason" | "complete" | "done",
+  | "collected" | "mode" | "modeUpi" | "modeCash" | "modeBank" | "modePending" | "reason" | "complete" | "done" | "includes" | "upiConfirm" | "shareProof" | "cashTag",
   string
 >;
 
+// Payment gate (owner 2026-11-14): a technician closes a job with exactly one of these two. No manual UTR typing.
 const MODES = [
   ["UPI", "modeUpi"],
   ["CASH", "modeCash"],
-  ["BANK", "modeBank"],
-  ["PENDING_APPROVAL", "modePending"],
 ] as const;
 
 /** Browser GPS read with accuracy; resolves a reason string on failure so the staff member can act on it. */
@@ -37,8 +36,9 @@ function readGps(): Promise<{ lat: number; lng: number; acc: number } | string> 
  * Every gate is enforced again on the server (src/server/actions/jobs.ts); this component only guides the order.
  */
 export function StaffFieldFlow({
-  jobId, status, reached, otpVerified, bill, payQr, reviewQr, directionsHref, labels,
+  jobId, status, reached, otpVerified, bill, payQr, reviewQr, directionsHref, labels, staffName, lines,
 }: {
+  staffName?: string; lines?: string[];
   jobId: string; status: string; reached: boolean; otpVerified: boolean; bill: { total: number; advance: number; balance: number } | null; payQr: string | null; reviewQr: string | null; directionsHref?: string; labels: Labels;
 }) {
   const router = useRouter();
@@ -47,8 +47,9 @@ export function StaffFieldFlow({
   const [otp, setOtp] = useState("");
   const [amount, setAmount] = useState(bill ? String(bill.balance) : "");
   const [mode, setMode] = useState<(typeof MODES)[number][0] | "">("");
-  const [note, setNote] = useState("");
+  const [note] = useState("");
   const [closing, setClosing] = useState(false);
+  const [upiOk, setUpiOk] = useState(false);
 
   if (status === "COMPLETED") {
     return <div className="flex items-center gap-2 rounded-2xl bg-success/15 p-4 text-sm font-semibold text-success"><CheckCircle2 className="size-5" /> {labels.done}</div>;
@@ -135,10 +136,13 @@ export function StaffFieldFlow({
     );
   }
   const money = (n: number) => `₹${n.toLocaleString("en-IN")}`;
-  const needReason = mode === "PENDING_APPROVAL";
-  const ready = mode !== "" && amount !== "" && (!needReason || note.trim().length >= 5);
+  const ready = mode !== "" && amount !== "" && Number(amount) > 0 && (mode !== "UPI" || upiOk);
+  const shareHref = `https://wa.me/?text=${encodeURIComponent(`Payment received for the job — ${money(Number(amount) || 0)} via UPI${staffName ? ` (${staffName})` : ""}. Screenshot attached.`)}`;
   return (
     <section className={card}>
+      {lines && lines.length > 0 && (
+        <div className="rounded-2xl border border-border p-3 text-sm"><div className="mb-1 font-semibold">{labels.includes}</div><ul className="list-disc space-y-0.5 pl-5">{lines.map((l, i) => <li key={`${l}-${i}`}>{l}</li>)}</ul></div>
+      )}
       {bill && (
         <div className="grid grid-cols-1 gap-2">
           <div className="flex items-baseline justify-between rounded-2xl bg-muted px-4 py-3"><span className="text-base font-semibold">{labels.total}</span><span className="text-3xl font-extrabold">{money(bill.total)}</span></div>
@@ -170,17 +174,21 @@ export function StaffFieldFlow({
         </div>
       </div>
 
-      {(needReason || note) && (
-        <label className="block text-sm font-semibold">
-          {needReason ? labels.reason : "Note"}
-          <textarea value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} rows={2} className="mt-1 w-full rounded-xl border border-border bg-background p-3 text-sm" />
-        </label>
+      {mode === "UPI" && (
+        <div className="space-y-2 rounded-2xl border border-border p-3">
+          <label className="flex items-start gap-3 text-sm font-semibold">
+            <input type="checkbox" checked={upiOk} onChange={(e) => setUpiOk(e.target.checked)} className="mt-0.5 size-6 shrink-0" />
+            <span>{labels.upiConfirm}</span>
+          </label>
+          <a href={shareHref} target="_blank" rel="noopener noreferrer" className="flex min-h-12 items-center justify-center rounded-xl border border-border bg-background px-3 text-sm font-bold">{labels.shareProof}</a>
+        </div>
       )}
+      {mode === "CASH" && <p className="rounded-2xl bg-muted px-3 py-2 text-sm font-semibold">{labels.cashTag}{staffName ? `: ${staffName}` : ""}</p>}
 
       <button
         type="button" disabled={pending || !ready} className={cn(big, "bg-success text-white")}
         onClick={() => start(async () => {
-          const res = await staffCompleteJob(jobId, { amount: Number(amount), mode, note });
+          const res = await staffCompleteJob(jobId, { amount: Number(amount), mode, note, upiConfirmed: upiOk });
           if ("error" in res && res.error) return void toast.error(res.error);
           toast.success(labels.done);
           router.refresh();

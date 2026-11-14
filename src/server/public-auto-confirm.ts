@@ -9,7 +9,8 @@ import { bookingPageUrl, ensureJobToken } from "@/server/booking-messages";
 // office's "Confirm Booking" (server/confirm-lead-core.ts), so the customer gets the standard WhatsApp booking
 // confirmation with the booking page link (status: confirmed -> crew assigned -> started -> completed).
 // Inspection / custom-quote work (painting, commercial, housekeeping, 4 BHK+) is never auto-confirmed.
-//   PUBLIC_AUTO_CONFIRM=off            kill switch (back to "request received" + office confirmation)
+//   PUBLIC_AUTO_CONFIRM=on             opt-in. DEFAULT IS OFF (owner 2026-11-14): website bookings land as Pending Confirmation and the
+//                                      office confirms them with Confirm Booking (which issues the single Start OTP)
 //   PUBLIC_AUTO_CONFIRM_FROM=YYYY-MM-DD first service date that is auto-confirmed (default 2026-11-06)
 
 /**

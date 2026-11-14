@@ -26,9 +26,9 @@ test("unfurnished flat matrix: 1/2/3 BHK at 3,199 / 3,899 / 4,599, no 4 BHK", ()
   assert.equal(CATALOG_SERVICES.find((s) => s.slug === "unfurnished-home-cleaning")?.pricing.mode, "unfurnished");
 });
 
-test("checkout chips: Single Fridge 399, Chimney Deep Cleaning 499, Pest Control Shot 899, Balcony 499 (owner 2026-11-12)", () => {
+test("checkout chips: Single Fridge 399, Chimney Deep Cleaning 599 (Pune market rate, 2026-11-14), Pest Control Shot 899, Balcony 499", () => {
   assert.deepEqual([...CHECKOUT_CHIP_IDS], ["SCS-32", "SCS-35", "SCS-36", "SCS-34"]);
-  assert.deepEqual(CHECKOUT_CHIP_IDS.map((id) => byId(id)?.price), [399, 499, 899, 499]);
+  assert.deepEqual(CHECKOUT_CHIP_IDS.map((id) => byId(id)?.price), [399, 599, 899, 499]);
   assert.equal(byId("SCS-36")?.addOnOnly, true, "pest shot is add-on only");
 });
 
